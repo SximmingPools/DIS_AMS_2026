@@ -12,8 +12,7 @@ Stack:
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 copy .env.example .env
 ```
 
@@ -55,19 +54,19 @@ Coffee Sales CSV, and run the transaction demo.
 Check the database connection:
 
 ```powershell
-python scripts/check_connection.py
+.\.venv\Scripts\python.exe scripts/check_connection.py
 ```
 
 Run the concurrency experiment scaffold:
 
 ```powershell
-python scripts/concurrency_demo.py
+.\.venv\Scripts\python.exe scripts/concurrency_demo.py
 ```
 
 Import the Coffee Sales CSV:
 
 ```powershell
-python scripts/import_coffee_sales.py
+.\.venv\Scripts\python.exe scripts/import_coffee_sales.py
 ```
 
 The CSV is expected at `data/coffee_sales.csv`.

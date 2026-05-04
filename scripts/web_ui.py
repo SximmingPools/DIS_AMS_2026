@@ -1,18 +1,17 @@
 import html
+import subprocess
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs
 
-sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
-
-from db_exercise.config import ROOT_DIR
-from db_exercise.operations import check_connection, concurrency_demo, import_coffee_sales
-
 
 HOST = "127.0.0.1"
 PORT = 8000
+ROOT_DIR = Path(__file__).resolve().parents[1]
 ENV_FILE = ROOT_DIR / ".env"
+VENV_PYTHON = ROOT_DIR / ".venv" / "Scripts" / "python.exe"
+PROJECT_PYTHON = VENV_PYTHON if VENV_PYTHON.exists() else Path(sys.executable)
 
 
 PAGE = """<!doctype html>
@@ -199,11 +198,11 @@ class Handler(BaseHTTPRequestHandler):
             if self.path == "/save-env":
                 self.handle_save_env()
             elif self.path == "/run/check":
-                self.respond_text(check_connection())
+                self.respond_text(run_script("check_connection.py"))
             elif self.path == "/run/import":
-                self.respond_text(import_coffee_sales())
+                self.respond_text(run_script("import_coffee_sales.py"))
             elif self.path == "/run/concurrency":
-                self.respond_text(concurrency_demo())
+                self.respond_text(run_script("concurrency_demo.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
             else:
@@ -238,11 +237,27 @@ def status_text() -> str:
     return "\n".join(
         [
             f"Repository: {ROOT_DIR}",
+            f"Python used for actions: {PROJECT_PYTHON}",
             f".env exists: {ENV_FILE.exists()}",
             f"Coffee CSV exists: {csv_path.exists()}",
             f"Coffee CSV path: {csv_path}",
         ]
     )
+
+
+def run_script(script_name: str) -> str:
+    script_path = ROOT_DIR / "scripts" / script_name
+    result = subprocess.run(
+        [str(PROJECT_PYTHON), str(script_path)],
+        cwd=ROOT_DIR,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        return output or f"{script_name} failed with exit code {result.returncode}"
+    return output or f"{script_name} finished successfully"
 
 
 def main() -> None:
