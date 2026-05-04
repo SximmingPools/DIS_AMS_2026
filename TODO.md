@@ -1,7 +1,12 @@
 # Exercise Sheet 1 TODO
 
-- [ ] Form a team of 2 or 3 people.
-- [ ] Create or join the team in Moodle under `Demo Teams`.
+## Team
+
+- [x] Form a team of 2 or 3 people.
+- [x] Create or join the team in Moodle under `Demo Teams`.
+
+## Local Setup
+
 - [ ] Install and start PostgreSQL locally.
 - [ ] Create a persistent PostgreSQL database for the exercise.
 - [ ] Create a Python virtual environment.
@@ -12,6 +17,9 @@
 - [ ] Confirm multiple Python clients can connect to the same database.
 - [ ] Confirm transactions can be started, committed, and rolled back.
 - [ ] Confirm CSV data can be imported into PostgreSQL.
+
+## Transaction Experiment
+
 - [ ] Open connection A to the persistent database without using a GUI.
 - [ ] Create a table through connection A.
 - [ ] Insert the first tuple through connection A.
@@ -36,8 +44,11 @@
 - [ ] After each successful update commit, query the table contents again from the successful connection.
 - [ ] If both update commits succeed, open connection C and query the table contents.
 - [ ] Save notes after every executed transaction step.
-- [ ] Download the `Coffee Sales` CSV dataset from Moodle.
-- [ ] Start with a fresh database for the CSV import task.
+
+## Coffee Sales CSV
+
+- [x] Download the `Coffee Sales` CSV dataset from Moodle.
+- [x] Start with a fresh database for the CSV import task.
 - [ ] Inspect the CSV columns and sample values.
 - [ ] Identify useful table constraints not provided by the CSV file.
 - [ ] Decide column data types for the Coffee Sales table.
@@ -49,5 +60,8 @@
 - [ ] Check whether the Coffee Sales table contains redundant information.
 - [ ] If redundant information exists, move it into separate normalized tables.
 - [ ] Define foreign key relations for normalized tables.
+
+## Final
+
 - [ ] Commit the final source code and notes before answering the questionnaire.
 
