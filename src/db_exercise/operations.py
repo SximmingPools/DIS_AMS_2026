@@ -41,11 +41,32 @@ def import_coffee_sales(csv_path: Path = DEFAULT_CSV) -> str:
     with psycopg.connect(database_url()) as conn:
         with conn.cursor() as cur:
             cur.execute("drop table if exists coffee_sales")
-            column_sql = ", ".join(f"{column} text" for column in columns)
-            cur.execute(f"create table coffee_sales (id bigserial primary key, {column_sql})")
+            cur.execute(
+                """
+                create table coffee_sales (
+                    id bigserial primary key,
+                    hour_of_day integer not null check (hour_of_day between 0 and 23),
+                    cash_type text not null check (cash_type in ('card', 'cash')),
+                    money numeric(10, 2) not null check (money >= 0),
+                    coffee_name text not null,
+                    time_of_day text not null,
+                    weekday text not null,
+                    month_name text not null,
+                    weekdaysort integer not null check (weekdaysort between 1 and 7),
+                    monthsort integer not null check (monthsort between 1 and 12),
+                    sale_date date not null,
+                    sale_time time not null
+                )
+                """
+            )
 
             placeholders = ", ".join(["%s"] * len(columns))
-            insert_sql = f"insert into coffee_sales ({', '.join(columns)}) values ({placeholders})"
+            insert_sql = (
+                "insert into coffee_sales ("
+                "hour_of_day, cash_type, money, coffee_name, time_of_day, weekday, "
+                "month_name, weekdaysort, monthsort, sale_date, sale_time"
+                f") values ({placeholders})"
+            )
             for row in rows:
                 cur.execute(insert_sql, [row[column] for column in original_columns])
 
@@ -124,4 +145,3 @@ def concurrency_demo() -> str:
         conn_b.close()
 
     return "\n".join(output)
-

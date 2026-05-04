@@ -16,21 +16,34 @@ python -m venv .venv
 copy .env.example .env
 ```
 
-Edit `.env` so `DATABASE_URL` points at your Neon PostgreSQL database.
+Edit `.env` only if you changed the Postgres username, password, database, or port.
 
-For the shared team database, use a hosted Neon Postgres connection string.
-Each teammate should keep the same value in their own local `.env` file.
-Do not commit `.env`.
+## Local Postgres
 
-Quick Neon setup:
+This repo includes a Docker Postgres setup. It loads `data/coffee_sales.csv`
+automatically the first time the database is created.
 
-1. Create a Neon project.
-2. Copy the direct PostgreSQL connection string from the Neon dashboard.
-3. Paste it into `.env` as `DATABASE_URL=...`.
-4. Share the connection string with teammates privately.
+Start Postgres:
 
-The database itself does not live inside GitHub. GitHub stores the code and CSV;
-Neon hosts the shared database that everyone connects to.
+```powershell
+docker compose up -d
+```
+
+Stop Postgres:
+
+```powershell
+docker compose down
+```
+
+Reset Postgres and reload the CSV from scratch:
+
+```powershell
+docker compose down -v
+docker compose up -d
+```
+
+The database files themselves are not committed. GitHub has the reproducible
+setup: Docker config, init SQL, source code, and the CSV.
 
 ## Local UI
 
