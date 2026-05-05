@@ -134,6 +134,7 @@ PAGE = """<!doctype html>
       <button data-action="/run/check">Check Connection</button>
       <button data-action="/run/import">Import Coffee Sales</button>
       <button data-action="/run/concurrency">Run Transaction Demo</button>
+      <button data-action="/run/operations-1-b">Run Exercise 1b</button>
       <button class="secondary" data-action="/run/status">Show Status</button>
     </section>
 
@@ -203,6 +204,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond_text(run_script("import_coffee_sales.py"))
             elif self.path == "/run/concurrency":
                 self.respond_text(run_script("concurrency_demo.py"))
+            elif self.path == "/run/operations-1-b":
+                self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-b.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
             else:
@@ -258,6 +261,19 @@ def run_script(script_name: str) -> str:
     if result.returncode != 0:
         return output or f"{script_name} failed with exit code {result.returncode}"
     return output or f"{script_name} finished successfully"
+
+def run_script_path(script_path: Path) -> str:
+    result = subprocess.run(
+        [str(PROJECT_PYTHON), str(script_path)],
+        cwd=ROOT_DIR,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        return output or f"{script_path.name} failed with exit code {result.returncode}"
+    return output or f"{script_path.name} finished successfully"
 
 
 def main() -> None:

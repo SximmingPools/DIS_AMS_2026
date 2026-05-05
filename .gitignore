@@ -13,3 +13,4 @@ build/
 tmp*/
 .server.out
 .server.err
+exercise-sheets/
