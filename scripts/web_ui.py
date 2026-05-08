@@ -135,6 +135,7 @@ PAGE = """<!doctype html>
       <button data-action="/run/import">Import Coffee Sales</button>
       <button data-action="/run/concurrency">Run Transaction Demo</button>
       <button data-action="/run/operations-1-b">Run Exercise 1b</button>
+      <button data-action="/run/exercise-1-c">Run Exercise 1c</button>
       <button class="secondary" data-action="/run/status">Show Status</button>
     </section>
 
@@ -206,6 +207,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond_text(run_script("concurrency_demo.py"))
             elif self.path == "/run/operations-1-b":
                 self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-b.py"))
+            elif self.path == "/run/exercise-1-c":
+                self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-c.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
             else:

@@ -49,17 +49,17 @@
 
 - [x] Download the `Coffee Sales` CSV dataset from Moodle.
 - [x] Start with a fresh database for the CSV import task.
-- [ ] Inspect the CSV columns and sample values.
-- [ ] Identify useful table constraints not provided by the CSV file.
-- [ ] Decide column data types for the Coffee Sales table.
-- [ ] Create a table for the Coffee Sales data.
-- [ ] Import the CSV into the table as automatically as possible.
-- [ ] Query the table to verify the imported data is present.
-- [ ] Add the identified constraints to the Coffee Sales table.
-- [ ] Add a primary key column if the CSV does not provide one.
-- [ ] Check whether the Coffee Sales table contains redundant information.
-- [ ] If redundant information exists, move it into separate normalized tables.
-- [ ] Define foreign key relations for normalized tables.
+- [x] Inspect the CSV columns and sample values in `src/db_exercise/operations-1-c.py`.
+- [x] Identify useful table constraints not provided by the CSV file.
+- [x] Decide column data types for the Coffee Sales table.
+- [x] Create a table for the Coffee Sales data.
+- [x] Import the CSV into the table as automatically as possible.
+- [x] Query the table to verify the imported data is present.
+- [x] Add the identified constraints to the Coffee Sales table.
+- [x] Add a primary key column if the CSV does not provide one.
+- [x] Check whether the Coffee Sales table contains redundant information.
+- [x] If redundant information exists, move it into separate normalized tables.
+- [x] Define foreign key relations for normalized tables.
 
 ## Final
 
