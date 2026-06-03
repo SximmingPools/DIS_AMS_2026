@@ -134,6 +134,10 @@ PAGE = """<!doctype html>
       <button data-action="/run/check">Check Connection</button>
       <button data-action="/run/import">Import Coffee Sales</button>
       <button data-action="/run/concurrency">Run Transaction Demo</button>
+      <button data-action="/run/operations-1-b">Run Exercise 1b</button>
+      <button data-action="/run/exercise-1-c">Run Exercise 1c</button>
+      <button data-action="/run/query-recipe">Find Americano with Milk Ingredients</button>
+      <button data-action="/run/aggregate-daily-prep">Aggregate Daily Prep Time</button>
       <button class="secondary" data-action="/run/status">Show Status</button>
     </section>
 
@@ -203,6 +207,14 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond_text(run_script("import_coffee_sales.py"))
             elif self.path == "/run/concurrency":
                 self.respond_text(run_script("concurrency_demo.py"))
+            elif self.path == "/run/operations-1-b":
+                self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-b.py"))
+            elif self.path == "/run/exercise-1-c":
+                self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-c.py"))
+            elif self.path == "/run/query-recipe":
+                self.respond_text(run_script("query_recipe_ingredients.py"))
+            elif self.path == "/run/aggregate-daily-prep":
+                self.respond_text(run_script("aggregate_daily_prep_time.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
             else:
@@ -234,6 +246,8 @@ class Handler(BaseHTTPRequestHandler):
 
 def status_text() -> str:
     csv_path = ROOT_DIR / "data" / "coffee_sales.csv"
+    recipes_path = ROOT_DIR / "data" / "coffee_recipes.json"
+    notes_path = ROOT_DIR / "notes" / "exercise2_notes.md"
     return "\n".join(
         [
             f"Repository: {ROOT_DIR}",
@@ -241,6 +255,10 @@ def status_text() -> str:
             f".env exists: {ENV_FILE.exists()}",
             f"Coffee CSV exists: {csv_path.exists()}",
             f"Coffee CSV path: {csv_path}",
+            f"Recipes JSON exists: {recipes_path.exists()}",
+            f"Recipes JSON path: {recipes_path}",
+            f"Exercise 2 notes exist: {notes_path.exists()}",
+            f"Exercise 2 notes path: {notes_path}",
         ]
     )
 
@@ -258,6 +276,19 @@ def run_script(script_name: str) -> str:
     if result.returncode != 0:
         return output or f"{script_name} failed with exit code {result.returncode}"
     return output or f"{script_name} finished successfully"
+
+def run_script_path(script_path: Path) -> str:
+    result = subprocess.run(
+        [str(PROJECT_PYTHON), str(script_path)],
+        cwd=ROOT_DIR,
+        capture_output=True,
+        text=True,
+        timeout=120,
+    )
+    output = (result.stdout + result.stderr).strip()
+    if result.returncode != 0:
+        return output or f"{script_path.name} failed with exit code {result.returncode}"
+    return output or f"{script_path.name} finished successfully"
 
 
 def main() -> None:

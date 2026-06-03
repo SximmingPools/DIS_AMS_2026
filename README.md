@@ -127,10 +127,15 @@ Worked if: the page opens and **Check Connection** says Python connected to Post
 - **Check Connection**: checks the current `DATABASE_URL` connection.
 - **Import Coffee Sales**: imports `data/coffee_sales.csv` into PostgreSQL.
 - **Run Transaction Demo**: runs a first version of the concurrent transaction experiment.
+- **Run Exercise 1b**: runs the prescribed transaction steps from exercise 1b.
+- **Run Exercise 1c**: imports, verifies, constrains, and normalizes the Coffee Sales CSV for exercise 1c.
 - **Show Status**: shows local paths and setup status.
 
 The transaction demo button does not complete the entire exercise. The exact
 exercise steps still need to be executed, observed, and documented.
+The exercise 1c button is a repeatable demo: it drops and recreates the
+Coffee Sales exercise tables, then prints the observations needed for the
+exercise notes.
 
 ## Useful Commands
 
@@ -153,5 +158,6 @@ Run scripts without the UI:
 .\.venv\Scripts\python.exe scripts/check_connection.py
 .\.venv\Scripts\python.exe scripts/import_coffee_sales.py
 .\.venv\Scripts\python.exe scripts/concurrency_demo.py
+.\.venv\Scripts\python.exe src/db_exercise/operations-1-c.py
 ```
 

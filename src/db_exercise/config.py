@@ -25,3 +25,8 @@ def database_url() -> str:
     if not url:
         raise RuntimeError("DATABASE_URL is missing. Copy .env.example to .env and edit it.")
     return url
+
+
+def mongodb_url() -> str:
+    load_env_file()
+    return os.getenv("MONGODB_URL", "mongodb://localhost:27017/")
