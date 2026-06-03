@@ -12,7 +12,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
       - ./data:/data:ro
+  mongodb:
+    image: mongo:7
+    container_name: dis_ams_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
 
 volumes:
   postgres_data:
-
+  mongodb_data:

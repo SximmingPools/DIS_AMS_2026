@@ -136,6 +136,8 @@ PAGE = """<!doctype html>
       <button data-action="/run/concurrency">Run Transaction Demo</button>
       <button data-action="/run/operations-1-b">Run Exercise 1b</button>
       <button data-action="/run/exercise-1-c">Run Exercise 1c</button>
+      <button data-action="/run/query-recipe">Find Americano with Milk Ingredients</button>
+      <button data-action="/run/aggregate-daily-prep">Aggregate Daily Prep Time</button>
       <button class="secondary" data-action="/run/status">Show Status</button>
     </section>
 
@@ -209,6 +211,10 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-b.py"))
             elif self.path == "/run/exercise-1-c":
                 self.respond_text(run_script_path(ROOT_DIR / "src" / "db_exercise" / "operations-1-c.py"))
+            elif self.path == "/run/query-recipe":
+                self.respond_text(run_script("query_recipe_ingredients.py"))
+            elif self.path == "/run/aggregate-daily-prep":
+                self.respond_text(run_script("aggregate_daily_prep_time.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
             else:
@@ -240,6 +246,8 @@ class Handler(BaseHTTPRequestHandler):
 
 def status_text() -> str:
     csv_path = ROOT_DIR / "data" / "coffee_sales.csv"
+    recipes_path = ROOT_DIR / "data" / "coffee_recipes.json"
+    notes_path = ROOT_DIR / "notes" / "exercise2_notes.md"
     return "\n".join(
         [
             f"Repository: {ROOT_DIR}",
@@ -247,6 +255,10 @@ def status_text() -> str:
             f".env exists: {ENV_FILE.exists()}",
             f"Coffee CSV exists: {csv_path.exists()}",
             f"Coffee CSV path: {csv_path}",
+            f"Recipes JSON exists: {recipes_path.exists()}",
+            f"Recipes JSON path: {recipes_path}",
+            f"Exercise 2 notes exist: {notes_path.exists()}",
+            f"Exercise 2 notes path: {notes_path}",
         ]
     )
 
