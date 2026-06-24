@@ -92,6 +92,18 @@ PAGE = """<!doctype html>
       padding: 14px;
       line-height: 1.45;
     }
+    input,
+    select {
+        border: 1px solid #b8b2a8;
+        border-radius: 6px;
+        padding: 10px;
+        font-size: 14px;
+        width: min(100%, 760px);
+        box-sizing: border-box;
+        background: #0f172a;
+        border-color: #4b5563;
+        color: #e5e7eb;
+    }
     @media (prefers-color-scheme: dark) {
       :root {
         background: #111827;
@@ -139,6 +151,27 @@ PAGE = """<!doctype html>
       <button data-action="/run/query-recipe">Find Americano with Milk Ingredients</button>
       <button data-action="/run/aggregate-daily-prep">Aggregate Daily Prep Time</button>
       <button class="secondary" data-action="/run/status">Show Status</button>
+      <button data-action="/run/aggregate-ingredients">Aggregate Ingredient Usage</button>
+    </section>
+
+    <section>
+      <form id="forecast-form">
+        <label for="ingredient">Ingredient</label>
+        <select id="ingredient" name="ingredient">
+            <option value="Milk">Milk</option>
+            <option value="Espresso">Espresso</option>
+            <option value="Coffee beans">Coffee beans</option>
+            <option value="Cocoa powder">Cocoa powder</option>
+            <option value="Sugar">Sugar</option>
+            <option value="Hot water">Hot water</option>
+            <option value="Salt">Salt</option>
+        </select>
+
+        <label for="window">Moving Average Window</label>
+        <input id="window" name="window" type="number" value="7" min="1">
+
+        <button type="submit">Run Forecast</button>
+      </form>
     </section>
 
     <section>
@@ -167,6 +200,12 @@ PAGE = """<!doctype html>
       event.preventDefault();
       const body = new URLSearchParams(new FormData(event.currentTarget)).toString();
       post("/save-env", body);
+    });
+
+    document.querySelector("#forecast-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+      const body = new URLSearchParams(new FormData(event.currentTarget)).toString();
+      post("/run/forecast", body);
     });
   </script>
 </body>
@@ -217,6 +256,10 @@ class Handler(BaseHTTPRequestHandler):
                 self.respond_text(run_script("aggregate_daily_prep_time.py"))
             elif self.path == "/run/status":
                 self.respond_text(status_text())
+            elif self.path == "/run/aggregate-ingredients":
+                self.respond_text(run_script("aggregate_daily_ingredient_usage.py"))
+            elif self.path == "/run/forecast":
+                self.handle_forecast()
             else:
                 self.send_error(404)
         except Exception as exc:
@@ -228,6 +271,26 @@ class Handler(BaseHTTPRequestHandler):
         database_url = parse_qs(body).get("database_url", [""])[0].strip()
         save_database_url(database_url)
         self.respond_text(".env saved")
+
+    def handle_forecast(self) -> None:
+        length = int(self.headers.get("Content-Length", "0"))
+        body = self.rfile.read(length).decode("utf-8")
+        params = parse_qs(body)
+
+        ingredient = params.get("ingredient", ["Milk"])[0].strip()
+        window = params.get("window", ["7"])[0].strip()
+
+        self.respond_text(
+            run_script_with_args(
+                "forecast_ingredient_usage.py",
+                [
+                    "--ingredient", ingredient,
+                    "--window", window,
+                    "--steps", "14",
+                    "--test-size", "14",
+                ],
+            )
+        )
 
     def respond_text(self, body: str, status: int = 200) -> None:
         self.respond(status, body, "text/plain; charset=utf-8")
@@ -289,6 +352,20 @@ def run_script_path(script_path: Path) -> str:
     if result.returncode != 0:
         return output or f"{script_path.name} failed with exit code {result.returncode}"
     return output or f"{script_path.name} finished successfully"
+
+def run_script_with_args(script_name: str, args: list[str]) -> str:
+  script_path = ROOT_DIR / "scripts" / script_name
+  result = subprocess.run(
+      [str(PROJECT_PYTHON), str(script_path), *args],
+      cwd=ROOT_DIR,
+      capture_output=True,
+      text=True,
+      timeout=120,
+  )
+  output = (result.stdout + result.stderr).strip()
+  if result.returncode != 0:
+      return output or f"{script_name} failed with exit code {result.returncode}"
+  return output or f"{script_name} finished successfully"
 
 
 def main() -> None:
