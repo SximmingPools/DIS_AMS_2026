@@ -1,16 +1,17 @@
-import json
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 import psycopg
+from pymongo import MongoClient
 
 sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 
-from db_exercise.config import ROOT_DIR, database_url
+from db_exercise.config import database_url, mongodb_url
 
 
-RECIPES_JSON = ROOT_DIR / "data" / "coffee_recipes.json"
+MONGO_DATABASE = "dis_ams_nosql"
+MONGO_COLLECTION = "coffee_recipes"
 
 
 def normalize_ingredient(item: str, unit: str) -> tuple[str, str, float]:
@@ -23,11 +24,21 @@ def normalize_ingredient(item: str, unit: str) -> tuple[str, str, float]:
     return item, unit, 1.0
 
 
-def load_recipes() -> dict[str, list[dict]]:
-    with RECIPES_JSON.open(encoding="utf-8") as file:
-        payload = json.load(file)
+def load_recipes_from_mongodb() -> dict[str, list[dict]]:
+    client = MongoClient(mongodb_url(), serverSelectionTimeoutMS=5000)
+    try:
+        client.admin.command("ping")
+        collection = client[MONGO_DATABASE][MONGO_COLLECTION]
+        recipes = list(collection.find({}, {"_id": 0, "name": 1, "ingredients": 1}))
+    finally:
+        client.close()
 
-    return {recipe["name"]: recipe["ingredients"] for recipe in payload["recipes"]}
+    if not recipes:
+        raise RuntimeError(
+            "No recipes found in MongoDB. Run scripts/sync_recipes_to_mongodb.py first."
+        )
+
+    return {recipe["name"]: recipe["ingredients"] for recipe in recipes}
 
 
 def fetch_daily_sales() -> list[tuple]:
@@ -45,7 +56,7 @@ def fetch_daily_sales() -> list[tuple]:
 
 
 def build_daily_usage() -> dict[tuple, float]:
-    recipes = load_recipes()
+    recipes = load_recipes_from_mongodb()
     sales = fetch_daily_sales()
     usage = defaultdict(float)
 
@@ -100,6 +111,7 @@ def main() -> None:
     usage = build_daily_usage()
     save_daily_usage_to_postgres(usage)
 
+    print(f"Loaded recipes from MongoDB database {MONGO_DATABASE}, collection {MONGO_COLLECTION}.")
     print("Created PostgreSQL table: daily_ingredient_usage")
     print()
     print("sale_date,ingredient,unit,daily_usage")

@@ -7,13 +7,17 @@ from db_exercise.config import ROOT_DIR, database_url
 
 
 DEFAULT_CSV = ROOT_DIR / "data" / "coffee_sales.csv"
+CONNECT_TIMEOUT_SECONDS = 2
 
 
 def check_connection() -> str:
-    with psycopg.connect(database_url()) as conn:
-        with conn.cursor() as cur:
-            cur.execute("select version(), current_setting('transaction_isolation')")
-            version, isolation_level = cur.fetchone()
+    try:
+        with psycopg.connect(database_url(), connect_timeout=CONNECT_TIMEOUT_SECONDS) as conn:
+            with conn.cursor() as cur:
+                cur.execute("select version(), current_setting('transaction_isolation')")
+                version, isolation_level = cur.fetchone()
+    except psycopg.OperationalError as exc:
+        raise RuntimeError("PostgreSQL is not reachable. Start Docker and try again.") from exc
 
     return "\n".join(
         [
